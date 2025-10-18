@@ -1,0 +1,40 @@
+<svg width="400" height="300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f8f9fa"/>
+  <rect x="50" y="50" width="300" height="200" fill="#e9ecef" stroke="#dee2e6" stroke-width="2"/>
+  
+  <!-- Hotel building -->
+  <rect x="80" y="80" width="240" height="140" fill="#6c757d"/>
+  <rect x="90" y="90" width="220" height="120" fill="#495057"/>
+  
+  <!-- Windows -->
+  <rect x="110" y="110" width="20" height="20" fill="#ffc107"/>
+  <rect x="140" y="110" width="20" height="20" fill="#ffc107"/>
+  <rect x="170" y="110" width="20" height="20" fill="#ffc107"/>
+  <rect x="200" y="110" width="20" height="20" fill="#ffc107"/>
+  <rect x="230" y="110" width="20" height="20" fill="#ffc107"/>
+  <rect x="260" y="110" width="20" height="20" fill="#ffc107"/>
+  
+  <rect x="110" y="140" width="20" height="20" fill="#ffc107"/>
+  <rect x="140" y="140" width="20" height="20" fill="#ffc107"/>
+  <rect x="170" y="140" width="20" height="20" fill="#ffc107"/>
+  <rect x="200" y="140" width="20" height="20" fill="#ffc107"/>
+  <rect x="230" y="140" width="20" height="20" fill="#ffc107"/>
+  <rect x="260" y="140" width="20" height="20" fill="#ffc107"/>
+  
+  <rect x="110" y="170" width="20" height="20" fill="#ffc107"/>
+  <rect x="140" y="170" width="20" height="20" fill="#ffc107"/>
+  <rect x="170" y="170" width="20" height="20" fill="#ffc107"/>
+  <rect x="200" y="170" width="20" height="20" fill="#ffc107"/>
+  <rect x="230" y="170" width="20" height="20" fill="#ffc107"/>
+  <rect x="260" y="170" width="20" height="20" fill="#ffc107"/>
+  
+  <!-- Door -->
+  <rect x="185" y="180" width="30" height="40" fill="#343a40"/>
+  
+  <!-- Hotel sign -->
+  <rect x="150" y="60" width="100" height="25" fill="#007bff"/>
+  <text x="200" y="77" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">HOTEL</text>
+  
+  <!-- Text -->
+  <text x="200" y="270" text-anchor="middle" fill="#6c757d" font-family="Arial, sans-serif" font-size="16">Hotel Image</text>
+</svg>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotels - Hotel Booking System</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><a href="../index.html">HotelBook</a></h1>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="hotels.html">Hotels</a>
+                <a href="bookings.html">My Bookings</a>
+                <a href="login.html" id="loginLink">Login</a>
+                <a href="register.html" id="registerLink">Register</a>
+                <span id="userInfo" style="display: none;">
+                    Welcome, <span id="userName"></span>
+                    <button onclick="logout()" class="logout-btn">Logout</button>
+                </span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="hotels-page">
+        <div class="container">
+            <h1>Find Hotels</h1>
+            
+            <!-- Search Form -->
+            <div class="search-section">
+                <form id="hotelSearchForm" class="search-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="searchLocation">Location:</label>
+                            <input type="text" id="searchLocation" name="location" placeholder="Enter city or hotel name">
+                        </div>
+                        <div class="form-group">
+                            <label for="searchCheckin">Check-in:</label>
+                            <input type="date" id="searchCheckin" name="checkin">
+                        </div>
+                        <div class="form-group">
+                            <label for="searchCheckout">Check-out:</label>
+                            <input type="date" id="searchCheckout" name="checkout">
+                        </div>
+                        <div class="form-group">
+                            <label for="searchGuests">Guests:</label>
+                            <select id="searchGuests" name="guests">
+                                <option value="1">1 Guest</option>
+                                <option value="2">2 Guests</option>
+                                <option value="3">3 Guests</option>
+                                <option value="4">4 Guests</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="search-btn">Search Hotels</button>
+                </form>
+            </div>
+
+            <!-- Hotels Results -->
+            <div class="hotels-results">
+                <div id="loadingMessage" style="display: none;">Loading hotels...</div>
+                <div id="hotelsContainer"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Load all hotels on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHotels();
+        });
+
+        // Load hotels
+        async function loadHotels(searchParams = {}) {
+            try {
+                document.getElementById('loadingMessage').style.display = 'block';
+                
+                let url = `${API_BASE}/hotels.php`;
+                if (searchParams.location) {
+                    url += `?city=${encodeURIComponent(searchParams.location)}`;
+                }
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success && data.data) {
+                    displayHotels(data.data);
+                } else {
+                    displayError('No hotels found');
+                }
+            } catch (error) {
+                console.error('Error loading hotels:', error);
+                displayError('Error loading hotels');
+            } finally {
+                document.getElementById('loadingMessage').style.display = 'none';
+            }
+        }
+
+        // Display hotels
+        function displayHotels(hotels) {
+            const container = document.getElementById('hotelsContainer');
+            
+            if (hotels.length === 0) {
+                container.innerHTML = '<p>No hotels found matching your criteria.</p>';
+                return;
+            }
+            
+            container.innerHTML = hotels.map(hotel => `
+                <div class="hotel-card-modern">
+                    <div class="hotel-image-container">
+                        <img src="../images/hotel-placeholder.svg" alt="${hotel.name}" class="hotel-img">
+                        <div class="hotel-rating-badge">
+                            <span class="rating-stars">${'★'.repeat(Math.floor(hotel.rating))}</span>
+                            <span class="rating-score">${hotel.rating}</span>
+                        </div>
+                    </div>
+                    <div class="hotel-content">
+                        <div class="hotel-header">
+                            <h3 class="hotel-title">${hotel.name}</h3>
+                            <p class="hotel-location-text">📍 ${hotel.city}, ${hotel.country || 'USA'}</p>
+                        </div>
+                        <p class="hotel-desc">${hotel.description}</p>
+                        <div class="hotel-amenities">
+                            <span class="amenity">🏊 Pool</span>
+                            <span class="amenity">📶 WiFi</span>
+                            <span class="amenity">🍽️ Restaurant</span>
+                            <span class="amenity">🚗 Parking</span>
+                        </div>
+                        <div class="hotel-footer">
+                            <div class="price-section">
+                                <span class="price-label">From</span>
+                                <span class="price-amount">$${hotel.price_per_night || hotel.min_price}</span>
+                                <span class="price-period">/night</span>
+                            </div>
+                            <div class="action-buttons">
+                                <a href="hotel-details.html?id=${hotel.id}" class="btn-secondary">View Details</a>
+                                <a href="hotel-details.html?id=${hotel.id}" class="btn-primary">Book Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Display error
+        function displayError(message) {
+            const container = document.getElementById('hotelsContainer');
+            container.innerHTML = `<p class="error-message">${message}</p>`;
+        }
+
+        // Handle search form
+        document.getElementById('hotelSearchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const searchParams = {
+                location: formData.get('location'),
+                checkin: formData.get('checkin'),
+                checkout: formData.get('checkout'),
+                guests: formData.get('guests')
+            };
+            
+            loadHotels(searchParams);
+        });
+    </script>
+</body>
+</html>

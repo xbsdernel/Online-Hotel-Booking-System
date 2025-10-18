@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Hotel Booking System</title>
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><a href="../index.html">HotelBook</a></h1>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="hotels.html">Hotels</a>
+                <a href="bookings.html">My Bookings</a>
+                <a href="login.html" id="loginLink">Login</a>
+                <a href="register.html" id="registerLink">Register</a>
+                <span id="userInfo" style="display: none;">
+                    Welcome, <span id="userName"></span>
+                    <button onclick="logout()" class="logout-btn">Logout</button>
+                </span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="bookings-page">
+        <div class="container">
+            <h1>My Bookings</h1>
+            
+            <div id="loginRequired" style="display: none;" class="login-required">
+                <p>Please <a href="login.html">login</a> to view your bookings.</p>
+            </div>
+            
+            <div id="bookingsContent" style="display: none;">
+                <div id="loadingMessage" style="display: none;">Loading your bookings...</div>
+                <div id="bookingsContainer"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Wait a bit for main.js to complete user session check
+            setTimeout(checkLoginAndLoadBookings, 100);
+        });
+
+        async function checkLoginAndLoadBookings() {
+            // If currentUser is still null, wait for session check to complete
+            if (currentUser === null) {
+                const sessionId = localStorage.getItem('sessionId');
+                if (sessionId) {
+                    // Wait for the session check to complete
+                    let attempts = 0;
+                    while (currentUser === null && attempts < 10) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                        attempts++;
+                    }
+                }
+            }
+            
+            if (currentUser) {
+                document.getElementById('loginRequired').style.display = 'none';
+                document.getElementById('bookingsContent').style.display = 'block';
+                loadBookings();
+            } else {
+                document.getElementById('loginRequired').style.display = 'block';
+                document.getElementById('bookingsContent').style.display = 'none';
+            }
+        }
+
+        async function loadBookings() {
+            try {
+                document.getElementById('loadingMessage').style.display = 'block';
+                
+                const response = await fetch(`${API_BASE}/bookings.php`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('sessionId')}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success && data.bookings) {
+                    displayBookings(data.bookings);
+                } else {
+                    displayNoBookings();
+                }
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                displayError('Error loading bookings');
+            } finally {
+                document.getElementById('loadingMessage').style.display = 'none';
+            }
+        }
+
+        function displayBookings(bookings) {
+            const container = document.getElementById('bookingsContainer');
+            
+            if (bookings.length === 0) {
+                displayNoBookings();
+                return;
+            }
+            
+            container.innerHTML = bookings.map(booking => `
+                <div class="booking-card">
+                    <div class="booking-header">
+                        <h3>${booking.hotel_name}</h3>
+                        <span class="booking-status status-${booking.status}">${booking.status}</span>
+                    </div>
+                    <div class="booking-details">
+                        <p><strong>Booking ID:</strong> ${booking.booking_id}</p>
+                        <p><strong>Check-in:</strong> ${formatDate(booking.checkin_date)}</p>
+                        <p><strong>Check-out:</strong> ${formatDate(booking.checkout_date)}</p>
+                        <p><strong>Guests:</strong> ${booking.guests}</p>
+                        <p><strong>Room Type:</strong> ${booking.room_type}</p>
+                        <p><strong>Total Price:</strong> $${booking.total_price}</p>
+                        <p><strong>Booking Date:</strong> ${formatDate(booking.booking_date)}</p>
+                    </div>
+                    <div class="booking-actions">
+                        <a href="hotel-details.html?id=${booking.hotel_id}" class="view-hotel-btn">View Hotel</a>
+                        ${booking.status === 'confirmed' ? '<button onclick="cancelBooking(\'' + booking.id + '\')" class="cancel-btn">Cancel Booking</button>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayNoBookings() {
+            const container = document.getElementById('bookingsContainer');
+            container.innerHTML = `
+                <div class="no-bookings">
+                    <p>You don't have any bookings yet.</p>
+                    <a href="hotels.html" class="browse-hotels-btn">Browse Hotels</a>
+                </div>
+            `;
+        }
+
+        function displayError(message) {
+            const container = document.getElementById('bookingsContainer');
+            container.innerHTML = `<p class="error-message">${message}</p>`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        async function cancelBooking(bookingId) {
+            if (!confirm('Are you sure you want to cancel this booking?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/bookings.php`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('sessionId')}`
+                    },
+                    body: JSON.stringify({ booking_id: bookingId })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Booking cancelled successfully');
+                    loadBookings(); // Reload bookings
+                } else {
+                    alert('Error cancelling booking: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error cancelling booking:', error);
+                alert('Error cancelling booking');
+            }
+        }
+    </script>
+</body>
+</html>

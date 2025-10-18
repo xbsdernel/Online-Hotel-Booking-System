@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Details - Hotel Booking System</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .hotel-details {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+        
+        .hotel-header {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .hotel-image {
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .hotel-image img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        
+        .hotel-info {
+            flex: 1;
+        }
+        
+        .hotel-title {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .hotel-location {
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        
+        .hotel-rating {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stars {
+            color: #ffc107;
+            font-size: 1.5em;
+        }
+        
+        .rating-text {
+            color: #666;
+        }
+        
+        .hotel-price {
+            font-size: 2em;
+            color: #007bff;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .booking-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .booking-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .btn-book {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-book:hover {
+            background: #218838;
+        }
+        
+        .btn-book:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .rooms-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .room-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .room-info h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .room-features {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .room-price {
+            font-size: 1.5em;
+            color: #007bff;
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <a href="../index.html">🏨 Hotel Booking</a>
+            </div>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <div id="authLinks">
+                    <a href="login.html">Login</a>
+                    <a href="register.html">Register</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="hotel-details">
+        <div id="loadingMessage" class="loading">
+            Loading hotel details...
+        </div>
+        
+        <div id="errorMessage" class="error" style="display: none;"></div>
+        
+        <div id="hotelContent" style="display: none;">
+            <div class="hotel-header">
+                <div class="hotel-image">
+                    <img id="hotelImage" src="../images/hotel-placeholder.svg" alt="Hotel Image">
+                </div>
+                <div class="hotel-info">
+                    <h1 id="hotelTitle" class="hotel-title">Hotel Name</h1>
+                    <p id="hotelLocation" class="hotel-location">📍 Location</p>
+                    <div class="hotel-rating">
+                        <span id="hotelStars" class="stars">⭐⭐⭐⭐⭐</span>
+                        <span id="hotelRating" class="rating-text">(4.5/5)</span>
+                    </div>
+                    <div id="hotelPrice" class="hotel-price">$99/night</div>
+                    <p id="hotelDescription">Hotel description will appear here...</p>
+                </div>
+            </div>
+
+            <div class="booking-section">
+                <h3>📅 Book Your Stay</h3>
+                <div class="booking-form">
+                    <div class="form-group">
+                        <label for="checkin">Check-in Date</label>
+                        <input type="date" id="checkin" name="checkin" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout">Check-out Date</label>
+                        <input type="date" id="checkout" name="checkout" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guests">Guests</label>
+                        <select id="guests" name="guests">
+                            <option value="1">1 Guest</option>
+                            <option value="2">2 Guests</option>
+                            <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button id="bookNowBtn" class="btn-book" onclick="bookHotel()">Book Now</button>
+                    </div>
+                </div>
+                <div id="bookingMessage" style="display: none;"></div>
+            </div>
+
+            <div class="rooms-section">
+                <h3>🏠 Available Rooms</h3>
+                <div id="roomsList">
+                    <!-- Rooms will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        let currentHotel = null;
+        
+        // Get hotel ID from URL parameters
+        function getHotelId() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('id');
+        }
+        
+        // Load hotel details
+        async function loadHotelDetails() {
+            const hotelId = getHotelId();
+            
+            if (!hotelId) {
+                showError('No hotel ID provided');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/hotels.php?id=${hotelId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentHotel = data.data;
+                    displayHotelDetails(currentHotel);
+                } else {
+                    showError('Hotel not found');
+                }
+            } catch (error) {
+                console.error('Error loading hotel details:', error);
+                showError('Error loading hotel details');
+            }
+        }
+        
+        // Display hotel details
+        function displayHotelDetails(hotel) {
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('hotelContent').style.display = 'block';
+            
+            // Update hotel information
+            document.getElementById('hotelTitle').textContent = hotel.name;
+            document.getElementById('hotelLocation').textContent = `📍 ${hotel.city}, ${hotel.country}`;
+            document.getElementById('hotelDescription').textContent = hotel.description || 'A wonderful place to stay.';
+            
+            // Update rating
+            const rating = parseFloat(hotel.rating) || 4.0;
+            const stars = '⭐'.repeat(Math.floor(rating));
+            document.getElementById('hotelStars').textContent = stars;
+            document.getElementById('hotelRating').textContent = `(${rating}/5)`;
+            
+            // Update price (use min_price if available)
+            const price = hotel.min_price || hotel.price_per_night || 99;
+            document.getElementById('hotelPrice').textContent = `$${price}/night`;
+            
+            // Display rooms
+            displayRooms(hotel.rooms || []);
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('checkin').min = today;
+            document.getElementById('checkout').min = today;
+        }
+        
+        // Display available rooms
+        function displayRooms(rooms) {
+            const roomsList = document.getElementById('roomsList');
+            
+            if (rooms.length === 0) {
+                roomsList.innerHTML = '<p>No rooms available at this time.</p>';
+                return;
+            }
+            
+            roomsList.innerHTML = rooms.map(room => `
+                <div class="room-card">
+                    <div class="room-info">
+                        <h4>${room.room_type}</h4>
+                        <div class="room-features">
+                            👥 Capacity: ${room.capacity} guests<br>
+                            🛏️ Available: ${room.available_rooms} rooms<br>
+                            ${room.amenities ? `🎯 ${room.amenities}` : ''}
+                        </div>
+                    </div>
+                    <div class="room-price">
+                        $${room.price_per_night}/night
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Book hotel
+        async function bookHotel() {
+            if (!currentUser) {
+                showBookingMessage('Please login to book a hotel', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+            
+            const checkin = document.getElementById('checkin').value;
+            const checkout = document.getElementById('checkout').value;
+            const guests = document.getElementById('guests').value;
+            
+            if (!checkin || !checkout) {
+                showBookingMessage('Please select check-in and check-out dates', 'error');
+                return;
+            }
+            
+            if (new Date(checkin) >= new Date(checkout)) {
+                showBookingMessage('Check-out date must be after check-in date', 'error');
+                return;
+            }
+            
+            const bookBtn = document.getElementById('bookNowBtn');
+            const originalText = bookBtn.textContent;
+            
+            try {
+                bookBtn.disabled = true;
+                bookBtn.textContent = 'Booking...';
+                
+                console.log('🏨 HOTEL BOOKING ATTEMPT:', {
+                    hotelId: currentHotel.id,
+                    hotelName: currentHotel.name,
+                    userId: currentUser.id,
+                    username: currentUser.username,
+                    checkin: checkin,
+                    checkout: checkout,
+                    guests: guests,
+                    timestamp: new Date().toISOString()
+                });
+                
+                // Make actual booking API call
+                const response = await fetch(`${API_BASE}/bookings.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('sessionId')}`
+                    },
+                    body: JSON.stringify({
+                        hotel_id: currentHotel.id,
+                        room_id: 1, // Default room ID for now
+                        check_in: checkin,
+                        check_out: checkout,
+                        guests: guests,
+                        total_price: calculateTotalPrice(checkin, checkout, currentHotel.price_per_night)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    console.log('✅ HOTEL BOOKING SUCCESS:', data);
+                    showBookingMessage(`Booking confirmed! Your reservation at ${currentHotel.name} from ${checkin} to ${checkout} has been processed. Booking ID: ${data.booking.id}`, 'success');
+                } else {
+                    throw new Error(data.message || 'Booking failed');
+                }
+                
+            } catch (error) {
+                console.error('🚨 HOTEL BOOKING ERROR:', error);
+                showBookingMessage('Error processing booking. Please try again.', 'error');
+            } finally {
+                bookBtn.disabled = false;
+                bookBtn.textContent = originalText;
+            }
+        }
+        
+        // Show error message
+        function showError(message) {
+            document.getElementById('loadingMessage').style.display = 'none';
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+        
+        // Calculate total price for booking
+        function calculateTotalPrice(checkinDate, checkoutDate, pricePerNight) {
+            const checkin = new Date(checkinDate);
+            const checkout = new Date(checkoutDate);
+            const timeDiff = checkout.getTime() - checkin.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            return daysDiff * pricePerNight;
+        }
+
+        // Show booking message
+        function showBookingMessage(message, type) {
+            const messageDiv = document.getElementById('bookingMessage');
+            messageDiv.textContent = message;
+            messageDiv.className = type;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Update checkout date when checkin changes
+        document.getElementById('checkin').addEventListener('change', function() {
+            const checkinDate = new Date(this.value);
+            const checkoutDate = new Date(checkinDate);
+            checkoutDate.setDate(checkoutDate.getDate() + 1);
+            
+            document.getElementById('checkout').min = checkoutDate.toISOString().split('T')[0];
+        });
+        
+        // Load hotel details when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHotelDetails();
+        });
+    </script>
+</body>
+</html>

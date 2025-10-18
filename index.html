@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Hotel Booking System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-brand">
+                <h1><a href="index.html">HotelBook</a></h1>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="pages/hotels.html">Hotels</a>
+                <a href="pages/bookings.html">My Bookings</a>
+                <a href="pages/login.html" id="loginLink">Login</a>
+                <a href="pages/register.html" id="registerLink">Register</a>
+                <span id="userInfo" style="display: none;">
+                    Welcome, <span id="userName"></span>
+                    <button onclick="logout()" class="logout-btn">Logout</button>
+                </span>
+            </div>
+        </nav>
+    </header>
+
+    <main class="home-page">
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Find Your Perfect Hotel</h1>
+                <p>Simple and easy hotel booking for your next trip</p>
+                
+                <!-- Quick Search Form -->
+                <div class="search-form">
+                    <h3>Search Hotels</h3>
+                    <form id="quickSearchForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="location">Location:</label>
+                                <input type="text" id="location" name="location" placeholder="Enter city or hotel name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="checkin">Check-in:</label>
+                                <input type="date" id="checkin" name="checkin" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="checkout">Check-out:</label>
+                                <input type="date" id="checkout" name="checkout" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="guests">Guests:</label>
+                                <select id="guests" name="guests">
+                                    <option value="1">1 Guest</option>
+                                    <option value="2">2 Guests</option>
+                                    <option value="3">3 Guests</option>
+                                    <option value="4">4 Guests</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="search-btn">Search Hotels</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Welcome Section (shown when not logged in) -->
+        <section class="welcome-section" id="welcomeSection">
+            <div class="welcome-content">
+                <h2>Welcome to HotelBook!</h2>
+                <p>Find and book your perfect hotel for your next trip. Use the search form above to get started.</p>
+            </div>
+        </section>
+
+        <!-- User Status Section -->
+        <section class="user-status" id="userStatus">
+            <div class="status-card">
+                <h3>Welcome to HotelBook!</h3>
+                <p>Please <a href="pages/login.html">login</a> or <a href="pages/register.html">register</a> to start booking hotels.</p>
+            </div>
+        </section>
+
+        <!-- Quick Actions Section (shown when logged in) -->
+        <section class="quick-actions" id="quickActions" style="display: none;">
+            <div class="container">
+                <h2>Quick Actions</h2>
+                <div class="actions-grid">
+                    <a href="pages/hotels.html" class="action-card">
+                        <h3>🏨 Browse Hotels</h3>
+                        <p>Explore our collection of hotels and find your perfect stay</p>
+                    </a>
+                    <a href="pages/bookings.html" class="action-card">
+                        <h3>📋 My Bookings</h3>
+                        <p>View and manage your current and past bookings</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>HotelBook</h3>
+                <p>Your trusted partner for hotel bookings worldwide. Find the perfect accommodation for your next adventure.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="pages/search.html">Search Hotels</a></li>
+                    <li><a href="pages/hotels.html">All Hotels</a></li>
+                    <li><a href="pages/bookings.html">My Bookings</a></li>
+                    <li><a href="pages/login.html">Login</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Contact Info</h4>
+                <ul>
+                    <li>📧 info@hotelbook.com</li>
+                    <li>📞 +1 (555) 123-4567</li>
+                    <li>📍 123 Travel Street, City, State 12345</li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="#" aria-label="Facebook">📘</a>
+                    <a href="#" aria-label="Twitter">🐦</a>
+                    <a href="#" aria-label="Instagram">📷</a>
+                    <a href="#" aria-label="LinkedIn">💼</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2024 HotelBook - Simple Hotel Booking System. All rights reserved.</p>
+            <p>Web Development Course Project</p>
+        </div>
+    </footer>
+
+    <!-- Message Container -->
+    <div id="messageContainer"></div>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Initialize home page
+        document.addEventListener('DOMContentLoaded', function() {
+            setupQuickSearch();
+            // Wait for session check to complete before updating user status
+            setTimeout(updateUserStatus, 100);
+        });
+
+        // View hotel details
+        function viewHotel(hotelId) {
+            window.location.href = `pages/hotel-details.html?id=${hotelId}`;
+        }
+
+        // Setup quick search
+        function setupQuickSearch() {
+            const form = document.getElementById('quickSearchForm');
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const searchParams = new URLSearchParams();
+                
+                for (let [key, value] of formData.entries()) {
+                    searchParams.append(key, value);
+                }
+                
+                window.location.href = `pages/search.html?${searchParams.toString()}`;
+            });
+        }
+
+        // Update user status
+        function updateUserStatus() {
+            const statusSection = document.getElementById('userStatus');
+            const welcomeSection = document.getElementById('welcomeSection');
+            const quickActions = document.getElementById('quickActions');
+            
+            if (currentUser) {
+                // Hide welcome sections and show user status
+                welcomeSection.style.display = 'none';
+                statusSection.innerHTML = `
+                    <div class="status-card">
+                        <h3>Welcome back, ${currentUser.full_name || currentUser.username}!</h3>
+                        <p>Ready to book your next adventure?</p>
+                    </div>
+                `;
+                
+                // Show quick actions
+                quickActions.style.display = 'block';
+            } else {
+                // Show welcome section and hide quick actions
+                welcomeSection.style.display = 'block';
+                quickActions.style.display = 'none';
+            }
+        }
+
+
+
+        // View hotel details
+        function viewHotel(hotelId) {
+            window.location.href = `pages/hotel-details.html?id=${hotelId}`;
+        }
+    </script>
+</body>
+</html>
